@@ -4,8 +4,8 @@
 <title>CLICK THE BART</title>
 <style>
   body { margin: 0; overflow: hidden; background: black; }
-  canvas { display: block; z-index: 10; position: relative; }
-  #bg-video { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 0; filter: invert(1); }
+  canvas { display: block; position: absolute; z-index: 10; top: 0; left: 0; }
+  #bg-video { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 1; filter: invert(1); }
 </style>
 </head>
 <body>
@@ -26,7 +26,7 @@
   resize();
 
   let started = false;
-  let state = 'BART'; 
+  let state = 'bart'; 
   
   const preMusic = new Audio('https://web.archive.org/web/20240716192911/https://nez.fyi/sml-assets/ctb2.ogg');
   preMusic.loop = true;
@@ -55,11 +55,11 @@
       return;
     }
 
-    if (state === 'BART') {
+    if (state === 'bart') {
       let dx = e.clientX - bart.x;
       let dy = e.clientY - bart.y;
       if (Math.abs(dx) < bart.w/2 && Math.abs(dy) < bart.h/2) {
-        state = 'FALLING';
+        state = 'falling';
         fallTimer = Date.now();
       }
     }
@@ -68,11 +68,11 @@
   function draw() {
     ctx.clearRect(0, 0, width, height);
 
-    if (state === 'BART') {
+    if (state === 'bart') {
       if (bartImg.complete) {
         ctx.drawImage(bartImg, bart.x - bart.w/2, bart.y - bart.h/2, bart.w, bart.h);
       }
-    } else if (state === 'FALLING') {
+    } else if (state === 'falling') {
       bart.vy += 1.5;
       bart.y += bart.vy;
       
@@ -85,13 +85,13 @@
       ctx.stroke();
 
       if (Date.now() - fallTimer > 1000) {
-        state = 'CHEESEBALL_RAVE';
+        state = 'rave';
         raveTimer = Date.now();
         preMusic.pause();
         video.style.display = 'none';
         dubstep.play();
       }
-    } else if (state === 'CHEESEBALL_RAVE') {
+    } else if (state === 'rave') {
       ctx.fillStyle = `hsl(${Math.random() * 360}, 100%, 20%)`;
       ctx.fillRect(0, 0, width, height);
       
