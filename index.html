@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>CLICK THE BART</title>
+<style>
+  body { margin: 0; overflow: hidden; background: black; }
+  canvas { display: block; z-index: 10; position: relative; }
+  #bg-video { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; object-fit: cover; z-index: 0; filter: invert(1); }
+</style>
+</head>
+<body>
+<video id="bg-video" src="https://web.archive.org/web/20240716192911im_/https://nez.fyi/sml-assets/explode.webm" loop muted playsinline></video>
+<canvas id="game"></canvas>
+
+<script>
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  const video = document.getElementById('bg-video');
+  
+  let width, height;
+  function resize() {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  let started = false;
+  let state = 'BART'; 
+  
+  const preMusic = new Audio('https://web.archive.org/web/20240716192911/https://nez.fyi/sml-assets/ctb2.ogg');
+  preMusic.loop = true;
+  const dubstep = new Audio('https://web.archive.org/web/20240716192911/https://nez.fyi/sml-assets/bartstep.ogg');
+  
+  const bartImg = new Image();
+  bartImg.src = 'https://upload.wikimedia.org/wikipedia/pt/a/aa/Bart_Simpson_200px.png';
+
+  let bart = { x: width/2, y: height/2, w: 200, h: 200, vy: 0 };
+  let fallTimer = 0;
+  let raveTimer = 0;
+
+  const titles = ["CLICK THE BART", "CLICK THE bART", "CLICK THE BaRT", "CLICK THE BArT", "CLICK THE BARt"];
+  let tIdx = 0;
+  setInterval(() => {
+    document.title = titles[tIdx];
+    tIdx = (tIdx + 1) % titles.length;
+  }, 100);
+
+  window.addEventListener('pointerdown', (e) => {
+    if (!started) {
+      alert("ready to experience it?");
+      started = true;
+      preMusic.play();
+      video.play();
+      return;
+    }
+
+    if (state === 'BART') {
+      let dx = e.clientX - bart.x;
+      let dy = e.clientY - bart.y;
+      if (Math.abs(dx) < bart.w/2 && Math.abs(dy) < bart.h/2) {
+        state = 'FALLING';
+        fallTimer = Date.now();
+      }
+    }
+  });
+
+  function draw() {
+    ctx.clearRect(0, 0, width, height);
+
+    if (state === 'BART') {
+      if (bartImg.complete) {
+        ctx.drawImage(bartImg, bart.x - bart.w/2, bart.y - bart.h/2, bart.w, bart.h);
+      }
+    } else if (state === 'FALLING') {
+      bart.vy += 1.5;
+      bart.y += bart.vy;
+      
+      ctx.beginPath();
+      ctx.arc(bart.x, bart.y, 100, 0, Math.PI * 2);
+      ctx.fillStyle = 'orange';
+      ctx.fill();
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#cc5500';
+      ctx.stroke();
+
+      if (Date.now() - fallTimer > 1000) {
+        state = 'CHEESEBALL_RAVE';
+        raveTimer = Date.now();
+        preMusic.pause();
+        video.style.display = 'none';
+        dubstep.play();
+      }
+    } else if (state === 'CHEESEBALL_RAVE') {
+      ctx.fillStyle = `hsl(${Math.random() * 360}, 100%, 20%)`;
+      ctx.fillRect(0, 0, width, height);
+      
+      ctx.fillStyle = `hsl(${Math.random() * 360}, 100%, 50%)`;
+      ctx.font = 'bold 15vw Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('CHEESEBALL', width/2, height/2);
+
+      if (Date.now() - raveTimer > 3000) {
+        window.location.href = 'https://websim.com';
+      }
+    }
+
+    requestAnimationFrame(draw);
+  }
+  
+  draw();
+</script>
+</body>
+</html>
